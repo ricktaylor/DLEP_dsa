@@ -63,23 +63,23 @@ or more [IPv4 Destination Service data items](#v4_dca_di) and/or
 [IPv6 Destination Service data items](#v6_dca_di) in the message. 
 
 When a modem receives a Session Update message from its local router containing
-one or more Destination Service data items, it MUST propogate the change in
+one or more Destination Service data items, it SHOULD propogate the change in
 services to all modems that have previously announced the local router as a DLEP
-destination. Each remote modem that receives such a notification MUST announce the
-change in remote router services by sending a Destination Up message to their
+destination. Each remote modem that receives such a notification SHOULD announce the
+change in remote router services by sending a Destination Update message to their
 attached router containing one or more Destination Service data items describing the
 services.
 
-When a modem forms a link with a remote modem, it MUST announce any
+When a modem forms a link with a remote modem, it SHOULD announce any
 services announced by the remote router to its local router by including one
 or more Destination Service data items in the Destination Up message.
 
+In order to retract a previously advertised service or announce a new service,
+the router MUST send a new Session Update message to the modem containing a
+relevant Destination Service data item with the Add/Remove flag cleared (zero).
+
 Destination Service data items MUST NOT be included in any DLEP Destination message
 referring to a multicast destination.
-
-In order to retract a previously advertised service or announce a new service,
-the router MUST send a new Session Update message to the modem listing all
-advertised services, i.e. there is no incremental update facility in this extension.
 
 ## Service Descriptors  {#service_desc}
 
@@ -169,16 +169,17 @@ A modem MAY include one or more instances of either or both data items in the
 DLEP Destination Up and Destination Update messages to inform locally attached
 routers of the services available at a remote DLEP destination.
 
-A router that receives one or more instances of either or both data items in a
-relevant Destination message MUST replace its record of what services are
-available at the remote destination with the new set provided. It should be
-noted that this requirement does not prevent modem implementations from using an
-incremental update mechanism in their over the air signalling.
-
 A router announcing services MUST NOT report the same combination of address
-and service in more than one (1) data item. A modem that receives multiple data
-items with the same address and service description SHOULD treat this as an
-invalid data item in the message, and react as defined in the core DLEP
+and service in more than one (1) data item per message. A modem that receives
+multiple data items with the same address and service description in a single
+message SHOULD treat this as an invalid data item in the message, and react as
+defined in the core DLEP specification.
+
+A modem receiving a Destination Service data item with the Add/Remove flag
+cleared (zero) MUST retract any previously announced service from it's local
+router, informing all connected remote modems of the change. If a retraction of
+a destination service does not match a previous announcement, the implementation
+SHOULD treat this as an invalid data item and react as defined in the core DLEP
 specification.
 
 
@@ -191,16 +192,28 @@ The IPv4 Destination Service data item contains the following fields:
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     | Data Item Type                | Length                        |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                       IPv4 Address                            |
+    | Flags         |       IPv4 Address                            :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                     Service Descriptor...                     :
+    :   (cont)...   |  Service Descriptor...                        :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
 Data Item Type:
 :    TBD
 
 Length: 
-:    4 + the length of Service Descriptor in octets.
+:    5 + the length of Service Descriptor in octets.
+
+Flags:
+:    Flags controlling the announcement of the service.
+     
+     Bit 0: (Add/Remove flag) 0 = Remove, 1 = Add.
+     
+     Bit 1-7: Reserved, must be zero.
+     
+     The Add/Remove flag in the Flags field indicates whether this service is
+     being announced as running (Add), or whether a previously announced active
+     service is being announced as no longer avaiable at the destination
+     (Remove).
 
 IPv4 Address:
 :    An IPv4 address used by the announced service.
@@ -219,23 +232,37 @@ The IPv6 Destination Service data item contains the following fields:
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     | Data Item Type                | Length                        |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Flags         |               IPv6 Address                    :
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |                        IPv6 Address                           :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     :                        IPv6 Address                           :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     :                        IPv6 Address                           :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    :                        IPv6 Address                           |
+    :                        IPv6 Address                           :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                     Service Descriptor...                     :
+    :               |     Service Descriptor...                     :
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
 Data Item Type:
 :    TBD
 
 Length: 
-:    16 + the length of Service Descriptor in octets.
+:    17 + the length of Service Descriptor in octets.
 
+Flags:
+:    Flags controlling the announcement of the service.
+     
+     Bit 0: (Add/Remove flag) 0 = Remove, 1 = Add.
+     
+     Bit 1-7: Reserved, must be zero.
+     
+     The Add/Remove flag in the Flags field indicates whether this service is
+     being announced as running (Add), or whether a previously announced active
+     service is being announced as no longer avaiable at the destination
+     (Remove).
+     
 IPv6 Address:
 :    An IPv6 address used by the announced service.
 
@@ -263,7 +290,9 @@ Therefore:
 
 It should be also noted that a malicious router could attempt to deny service
 to a network by rapidly and repeatedly announcing a varying set of services,
-forcing the modems to flood the over the air signalling with updates.
+forcing the modems to flood the over the air signalling with updates. A modem
+implementation MUST be aware of this risk and implement mitigations, such as
+aggregating the changes and trottling the updates propogated between devices.
 
 
 # IANA Considerations
@@ -274,4 +303,4 @@ This section specifies requests to IANA.
 
 # Acknowledgements
 
-Thanks to Steve Loates for his reviews.
+Many thanks to Steve Loates, Stan Ratliff and Henning Rogge for their reviews and feedback.
