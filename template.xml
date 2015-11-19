@@ -8,7 +8,7 @@
 <!ENTITY RFC.2782       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
 <!ENTITY RFC.5234       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml'>
 <!ENTITY RFC.2328       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2328.xml'>
-<!ENTITY DLEP           PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-manet-dlep-16.xml'>
+<!ENTITY DLEP           PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-manet-dlep-17.xml'>
 ]>
 
 <?rfc toc="yes"?>

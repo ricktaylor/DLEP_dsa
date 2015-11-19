@@ -204,22 +204,30 @@ Length:
 :    5 + the length of Service Descriptor in octets.
 
 Flags:
-:    Flags controlling the announcement of the service.
-     
-     Bit 0: (Add/Remove flag) 0 = Remove, 1 = Add.
-     
-     Bit 1-7: Reserved, must be zero.
-     
-     The Add/Remove flag in the Flags field indicates whether this service is
-     being announced as running (Add), or whether a previously announced active
-     service is being announced as no longer avaiable at the destination
-     (Remove).
+:    Flags field, defined below.
 
 IPv4 Address:
 :    An IPv4 address used by the announced service.
 
 Service Descriptor:
 :    A string of characters, as defined in [](#service_desc).
+
+
+The Flags field is defined as:
+
+     0 1 2 3 4 5 6 7 
+    +-+-+-+-+-+-+-+-+
+    |    MBZ      |A|
+    +-+-+-+-+-+-+-+-+
+    
+A: 
+:    Add/Remove flag, indicating whether this service is
+     being announced as running (1), or whether a previously announced active
+     service is being announced as no longer avaiable at the destination
+     (0).
+     
+MBZ:
+:    MUST be zero.  Reserved for future use. 
 
 An implementation MUST NOT assume the Service Descriptor field is NUL-terminated.
 
@@ -252,16 +260,7 @@ Length:
 :    17 + the length of Service Descriptor in octets.
 
 Flags:
-:    Flags controlling the announcement of the service.
-     
-     Bit 0: (Add/Remove flag) 0 = Remove, 1 = Add.
-     
-     Bit 1-7: Reserved, must be zero.
-     
-     The Add/Remove flag in the Flags field indicates whether this service is
-     being announced as running (Add), or whether a previously announced active
-     service is being announced as no longer avaiable at the destination
-     (Remove).
+:    Flags field, defined below.
      
 IPv6 Address:
 :    An IPv6 address used by the announced service.
@@ -269,6 +268,23 @@ IPv6 Address:
 Service Descriptor:
 :    A string of characters, as defined in [](#service_desc).
 
+
+The Flags field is defined as:
+
+     0 1 2 3 4 5 6 7 
+    +-+-+-+-+-+-+-+-+
+    |    MBZ      |A|
+    +-+-+-+-+-+-+-+-+
+    
+A: 
+:    Add/Remove flag, indicating whether this service is
+     being announced as running (1), or whether a previously announced active
+     service is being announced as no longer avaiable at the destination
+     (0).
+     
+MBZ:
+:    MUST be zero.  Reserved for future use. 
+     
 An implementation MUST NOT assume the Service Descriptor field is NUL-terminated.
 
 # Security Considerations
