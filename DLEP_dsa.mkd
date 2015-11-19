@@ -299,7 +299,17 @@ aggregating the changes and trottling the updates propogated between devices.
 
 This section specifies requests to IANA.
 
---- And I need to fill it in ---
+## Registrations
+
+This specification defines two (2) new data items for DLEP.
+Assignments from the DLEP data item registry are requested for:
+
+* IPv6 Destination Service
+* IPv4 Destination Service
+
+The specification also defined an extension to the DLEP protocol. An
+assignment from the DLEP extension registry is requested for
+'Destination Service Announcement'.
 
 # Acknowledgements
 

@@ -18,7 +18,7 @@
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-taylor-manet-dlep-dca-00">
+<rfc category="std" ipr="trust200902" docName="draft-taylor-manet-dlep-dsa-00">
 	<front>
 		<title>DLEP Destination Service Announcement</title>
 		<author initials="R." surname="Taylor" fullname="Rick Taylor">
