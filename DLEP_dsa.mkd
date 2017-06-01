@@ -117,8 +117,8 @@ Port:
      
 As mentioned above, the Name field in a service descriptor MUST follow the DNS
 name syntax, but MAY not be a DNS name, as DLEP is often deployed in
-envrionments where DNS is not available. However, the Name field still serves a
-purpose as a descriminiator for different instances of a service and may be used
+environments where DNS is not available. However, the Name field still serves a
+purpose as a descriminiator for different instances of a service and could be used
 by a receiving router to make peering decisions.
 
 When a service operates as an IP protocol, rather than TCP, UDP, SCTP or DCCP,
