@@ -1,8 +1,8 @@
 # Introduction
 
 One of the popular uses of the Dynamic Link Exchange Protocol (DLEP) 
-[](#I-D.ietf-manet-dlep) is to improve the association time of routing protocol
-peers. When a DLEP Destination Up message is received by a router, routing
+[](#RFC8175) is to improve the association time of routing protocol
+peers. When a DLEP Destination Up Message is received by a router, routing
 protocol instances can be informed of potential peers, enhancing or avoiding the
 use of timed Hello messages, speeding up the convergence of nodes. In practice
 this behaviour has many benefits, but does also have a downside: When a new
@@ -15,17 +15,18 @@ routers each new router may be bombarded by requests to form a routing adjacency
 from every protocol implementation active on every other reachable router in the
 network.
 
-This document defines an extension to DLEP that introduces a new data
-item to allow a router to announce to its DLEP session peer the list of
-services that it supports, such as the running routing protocols. A modem
-supporting this extension can transmit this information over the air using
-whatever internal protocol it uses for signalling to all connected modems. Every
-other modem can then attach the received list of services to the DLEP
-Destination Up message that it then sends to its DLEP session peer router. Any
-changes to the set of services can also be sent via the same mechanism,
-resulting in a corresponding DLEP Destination Update message.
+This document defines an extension to DLEP that introduces a new Data Item to
+allow a router to announce to its DLEP session peer, during Session
+Initialization, the set of services that it supports, such as the running
+routing protocols. A modem supporting this extension can transmit this
+information over the air using whatever internal protocol it uses for signalling
+to all connected modems. Every other modem can then attach the received set of
+services to the DLEP Destination Up Message that it then sends to its DLEP
+session peer router. Any changes to the set of services can also be sent via the
+Session Update Message, resulting in a corresponding DLEP Destination Update
+Message.
 
-This service announcement may be used to advertise the availability of more
+This service announcement can be used to advertise the availability of more
 than just routing protocols. Other protocols that need peers for their
 operation, such as peer-to-peer messaging applications, or discovering the
 presence of matching protocol compression proxies, can also use the same
@@ -43,45 +44,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 
 As an extension to DLEP, this document assumes any implementation of this
 extension correctly implements the core DLEP specification defined in 
-[](#I-D.ietf-manet-dlep). No other DLEP extensions are required.
+[](#RFC8175). No other DLEP extensions are required.
 
 This extension also assumes that supporting modems have the facility to
 transmit the set of services described by an attached router to other modems
 in the network.
 
-
-# Operation
-
-To announce support for this extension an implementation MUST follow the
-procedure defined in core DLEP, i.e. Including a DLEP Extension Supported data
-item in the relevant Session Initialization or Session Initialization Response
-message.
-
-A router uses the Session Update message to advertize its services to its
-local session modem once it enters the DLEP In-Session state, by including one
-or more [IPv4 Destination Service data items](#v4_dca_di) and/or 
-[IPv6 Destination Service data items](#v6_dca_di) in the message. 
-
-When a modem receives a Session Update message from its local router containing
-one or more Destination Service data items, it SHOULD propogate the change in
-services to all modems that have previously announced the local router as a DLEP
-destination. Each remote modem that receives such a notification SHOULD announce the
-change in remote router services by sending a Destination Update message to their
-attached router containing one or more Destination Service data items describing the
-services.
-
-When a modem forms a link with a remote modem, it SHOULD announce any
-services announced by the remote router to its local router by including one
-or more Destination Service data items in the Destination Up message.
-
-In order to retract a previously advertised service or announce a new service,
-the router MUST send a new Session Update message to the modem containing a
-relevant Destination Service data item with the Add/Remove flag cleared (zero).
-
-Destination Service data items MUST NOT be included in any DLEP Destination message
-referring to a multicast destination.
-
-## Service Descriptors  {#service_desc}
+# Service Descriptors  {#service_desc}
 
 Services active on a router are described using Service Descriptors, that are
 modelled on DNS SRV records [](#RFC2782), but with some important differences. A
@@ -111,7 +80,7 @@ Name:
      it MUST use the DNS name syntax. The Name is case insensitive.
      
 Port: 
-:    OPTIONAL. The port on router of this service. The range is 0-65535. This
+:    OPTIONAL. The port on router of this service. The range is 1-65535. This
      field SHOULD only be specified if the port differs from the value specified
      in Assigned Numbers.
      
@@ -124,7 +93,7 @@ by a receiving router to make peering decisions.
 When a service operates as an IP protocol, rather than TCP, UDP, SCTP or DCCP,
 such as OSPF [](#RFC2328), the Protocol field MUST be specified as 'ip'.
 
-### Service Descriptor ABNF
+## Service Descriptor ABNF
 
     service-descriptor = service-part "." protocol-part
                           [ "." name-part [ ":" alt-port ] ]
@@ -137,55 +106,115 @@ such as OSPF [](#RFC2328), the Protocol field MUST be specified as 'ip'.
     name-part          = label *( "." label )
     label              = ALNUM *( [ "-" ] ALNUM )
     
-    alt-port           = 1*DIGIT              ; Values of 0-65535
+    alt-port           = %x31-39 *DIGIT         ; Values of 1-65535
     
     ALNUM              = ALPHA / DIGIT
     ALPHA              = %x41-5A / %x61-7A    ; A-Z / a-z [RFC5234]
     DIGIT              = %x30-39              ; 0-9       [RFC5234]
 
+# Operation
 
-# DLEP Signals and Messages for Destination Service Announcement
+To use this extension, as with all DLEP extensions, the extension MUST be
+announced during DLEP session initialization. A router advertises support by
+including the value 'Destination Service Announcement' (TBD1) in the Extension
+Data Item within the Session Intitialization Message. A modem advertises support
+by including the value 'Destination Service Announcement' (TBD1) in the
+Extension Data Item within the Session Intitialization Response Message. If both
+DLEP peers advertise support for this extension then the Data Items described in
+this document MAY be used. If a modem does not announce support for this
+extension, the router MUST NOT include any Data Items described in this document
+in any DLEP Message.
 
-This extension does not introduce any additional DLEP signals or messages, and
-does not alter the semantics of any signals or messages defined in the core DLEP
-specification.
+If a router announces support for the 'Destination Service Announcement'
+extension in the Session Initialization Message, it MAY incude one or more 
+[IPv4 Destination Service Data Items](#v4_dca_di) 
+and/or [IPv6 Destination Service Data Items] (#v6_dca_di) in the Session
+Initialization Message, as a DLEP compliant modem implementation that does not
+support this extension will correctly ignore the unknown.
 
+## Service Description Information Base  {#sdib}
+
+In order to describe the correct operation of this extension, a conceptual
+service descriptor information base is described that contains the set of
+service descriptors current announced by a router during a DLEP session. A modem
+that supports this extension is described as maintaining a service descriptor
+information base recording the set of service descriptors advertised by its
+local router, ready to relay this information to any over-the-air peers that
+support this extension with which it forms a link. An implementation is, of
+course, free to choose alternative ways of providing compliant functionality.
+
+When a modem receives a Session Initialization Message from its local router
+containing an Extension Supported Data Item announcing its support for this
+extension, and one or more Destination Service Data Items, it records this
+service information in the service descriptor information base.
+
+In order to retract a previously advertised service or announce the
+availability of a new service, the router sends a new Session Update Message to
+the modem containing a relevant Destination Service Data Item using the
+Add/Remove flag to indicate the change.
+
+When a modem receives a Session Update Message from its local router containing
+one or more Destination Service Data Items, it updates the set of service
+descriptors in its service descriptor information base.
+
+## Over-the-air signalling
+
+When a modem forms a new link with a remote modem, it sends the contents of the
+service descriptor information base to the remote modem. How this information is
+sent is an implementation detail that is out of scope of this document.
+
+When a modem supporting this extension receives a set of service descriptors
+from a remote modem, it SHOULD propogate this information to its DLEP peer router by
+including one or more Destination Service Data Items in the associated
+Destination Up Message.
+
+When the service descriptor information base of a modem is updated, as a result
+of a Session Update Message containing one or more Service Description Data
+Items, it informs all currently connected remote modems of the change. Each
+remote modem that receives such a notification SHOULD announce the change in remote
+router services by sending a Destination Update Message to their attached router
+containing one or more Destination Service Data Items describing the update in
+services.
 
 # DLEP Data Items for Destination Service Announcement
 
-This extension introduces two (2) new DLEP data items, described below. Both
-data items carry information about destination services, one for IPv4, the other
+This extension introduces two new DLEP Data Items, described below. Both
+Data Items carry information about destination services, one for IPv4, the other
 for IPv6.
 
-One or more instances of either or both Destination Service data items MAY
-appear in the DLEP Session Update, Destination Up, and Destination Update
-messages. 
+One or more instances of either or both Destination Service Data Items MAY
+appear in the DLEP Session Initialization, Session Update, Destination Up, and
+Destination Update Messages.
 
-A router MAY use one or more instances of either or both data items in the DLEP
-Session Update message to advertise all services that are currently available at
-the router.
+A router MAY use one or more instances of either or both Data Items in the DLEP
+Session Initialization Message to advertise all services that are currently
+available at the router, and a router MAY use one or more instances of either or
+both Data Items in the DLEP Session Update Message to advertise a change in the
+services that are currently available at the router.
 
-A modem MAY include one or more instances of either or both data items in the
-DLEP Destination Up and Destination Update messages to inform locally attached
-routers of the services available at a remote DLEP destination.
+A modem MAY include one or more instances of either or both Data Items in the
+DLEP Destination Up and Destination Update Messages to inform its DLEP session
+peer of the services available at a remote DLEP destination.
 
 A router announcing services MUST NOT report the same combination of address
-and service in more than one (1) data item per message. A modem that receives
-multiple data items with the same address and service description in a single
-message SHOULD treat this as an invalid data item in the message, and react as
+and service in more than one Data Item per Message. A modem that receives
+multiple Data Items with the same address and service descriptor in a single
+Message SHOULD treat this as an invalid Data Item in the Message, and react as
 defined in the core DLEP specification.
 
-A modem receiving a Destination Service data item with the Add/Remove flag
-cleared (zero) MUST retract any previously announced service from it's local
-router, informing all connected remote modems of the change. If a retraction of
-a destination service does not match a previous announcement, the implementation
-SHOULD treat this as an invalid data item and react as defined in the core DLEP
-specification.
+A modem receiving a Destination Service Data Item with the Add/Remove flag
+cleared (zero) retracts any previously announced service from its service
+descriptor information base, and MUST inform all connected remote modems of the
+change. If a retraction of a destination service does not match a previous
+announcement, the implementation SHOULD treat this as an invalid Data Item and
+react as defined in the core DLEP specification.
 
+Destination Service Data Items MUST NOT be included in any DLEP Destination Message
+referring to a multicast destination.
 
-## IPv4 Destination Service data item  {#v4_dca_di}
+## IPv4 Destination Service Data Item  {#v4_dca_di}
 
-The IPv4 Destination Service data item contains the following fields:
+The IPv4 Destination Service Data Item contains the following fields:
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -217,7 +246,7 @@ The Flags field is defined as:
 
      0 1 2 3 4 5 6 7 
     +-+-+-+-+-+-+-+-+
-    |    MBZ      |A|
+   |   Reserved  |A|
     +-+-+-+-+-+-+-+-+
     
 A: 
@@ -226,14 +255,14 @@ A:
      service is being announced as no longer avaiable at the destination
      (0).
      
-MBZ:
+Reserved:
 :    MUST be zero.  Reserved for future use. 
 
 An implementation MUST NOT assume the Service Descriptor field is NUL-terminated.
 
-## IPv6 Destination Service data item  {#v6_dca_di}
+## IPv6 Destination Service Data Item  {#v6_dca_di}
 
-The IPv6 Destination Service data item contains the following fields:
+The IPv6 Destination Service Data Item contains the following fields:
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -273,7 +302,7 @@ The Flags field is defined as:
 
      0 1 2 3 4 5 6 7 
     +-+-+-+-+-+-+-+-+
-    |    MBZ      |A|
+    |   Reserved  |A|
     +-+-+-+-+-+-+-+-+
     
 A: 
@@ -282,7 +311,7 @@ A:
      service is being announced as no longer avaiable at the destination
      (0).
      
-MBZ:
+Reserved:
 :    MUST be zero.  Reserved for future use. 
      
 An implementation MUST NOT assume the Service Descriptor field is NUL-terminated.
@@ -317,8 +346,8 @@ This section specifies requests to IANA.
 
 ## Registrations
 
-This specification defines two (2) new data items for DLEP.
-Assignments from the DLEP data item registry are requested for:
+This specification defines two new Data Items for DLEP.
+Assignments from the DLEP Data Item registry are requested for:
 
 * IPv6 Destination Service
 * IPv4 Destination Service

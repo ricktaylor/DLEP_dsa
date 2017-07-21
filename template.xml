@@ -8,7 +8,7 @@
 <!ENTITY RFC.2782       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
 <!ENTITY RFC.5234       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml'>
 <!ENTITY RFC.2328       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2328.xml'>
-<!ENTITY DLEP           PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-manet-dlep-17.xml'>
+<!ENTITY RFC.8175       PUBLIC '' 'http://xml.resource.org/public/rfc/bibxml/reference.RFC.8175.xml'>
 ]>
 
 <?rfc toc="yes"?>
@@ -18,7 +18,7 @@
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-taylor-manet-dlep-dsa-00">
+<rfc category="std" ipr="trust200902" docName="draft-taylor-manet-dlep-dsa-01">
 	<front>
 		<title>DLEP Destination Service Announcement</title>
 		<author initials="R." surname="Taylor" fullname="Rick Taylor">
@@ -50,7 +50,7 @@
 			&STD.2;
         	&RFC.2119;
         	&RFC.5234;
-        	&DLEP;
+        	&RFC.8175;
 		</references>
 		<references title="Informative References">
         	&RFC.2782;
